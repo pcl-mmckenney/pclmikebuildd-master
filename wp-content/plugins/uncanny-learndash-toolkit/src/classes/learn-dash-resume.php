@@ -53,17 +53,17 @@ class LearnDashResume extends Config implements RequiredFunctions {
 	 */
 	public static function get_details() {
 
-		$class_title       = esc_html__( 'LearnDash Resume Button', 'uncanny-learndash-toolkit' );
+		$class_title       = esc_html__( 'Resume Button', 'uncanny-learndash-toolkit' );
 		$kb_link           = 'https://www.uncannyowl.com/knowledge-base/learndash-resume/';
 		$class_description = esc_html__( 'Inserts a button that allows learners to return to the course, lesson or topic they last visited.', 'uncanny-learndash-toolkit' );
 		$class_icon        = '<i class="uo_icon_fa fa fa-refresh"></i>';
-		$tags              = 'learndash';
+		$category          = 'learndash';
 		$type              = 'free';
 
 		return array(
 			'title'            => $class_title,
 			'type'             => $type,
-			'tags'             => $tags,
+			'category'         => $category,
 			'kb_link'          => $kb_link,
 			'description'      => $class_description,
 			'dependants_exist' => self::dependants_exist(),
@@ -175,7 +175,8 @@ class LearnDashResume extends Config implements RequiredFunctions {
 				$user           = wp_get_current_user();
 				$step_course_id = $atts['course_id'];
 				$course         = get_post( $step_course_id );
-				if ( 'sfwd-courses' === $course->post_type ) {
+
+				if ( isset( $course ) && 'sfwd-courses' === $course->post_type ) {
 					$last_know_step = get_user_meta( $user->ID, 'learndash_last_known_course_' . $step_course_id, true );
 
 					// User has not hit a LD module yet

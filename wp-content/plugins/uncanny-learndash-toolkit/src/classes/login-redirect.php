@@ -25,9 +25,22 @@ class LoginRedirect extends Config implements RequiredFunctions {
 	public static function run_frontend_hooks() {
 
 		if ( true === self::dependants_exist() ) {
-			/* Hide admin bar on frontend for the user role */
-			add_filter( 'login_redirect', array( __CLASS__, 'login_redirect' ), 10, 1 );
-			add_action( 'wp_logout', array( __CLASS__, 'logout_redirect' ), 10, 1 );
+			$redirect_priority = 999;
+			
+			$settings = get_option( 'LoginRedirect', Array() );
+			
+			foreach ( $settings as $setting ) {
+				
+				if ( 'redirect_priority' === $setting['name'] ) {
+					$redirect_priority = $setting['value'];
+				}
+			}
+			if ( empty( $redirect_priority ) ) {
+				$redirect_priority = 999;
+			}
+			
+			add_filter( 'login_redirect', array( __CLASS__, 'login_redirect' ), $redirect_priority, 1 );
+			add_action( 'wp_logout', array( __CLASS__, 'logout_redirect' ), $redirect_priority, 1 );
 		}
 
 	}
@@ -43,13 +56,13 @@ class LoginRedirect extends Config implements RequiredFunctions {
 		$kb_link           = 'https://www.uncannyowl.com/knowledge-base/learndash-login-redirect/';
 		$class_description = esc_html__( 'Redirects all non-admin roles to a specific URL after logging into and/or out of the site.', 'uncanny-learndash-toolkit' );
 		$class_icon        = '<i class="uo_icon_fa fa fa-share"></i>';
-		$tags              = 'general';
+		$category          = 'wordpress';
 		$type              = 'free';
 
 		return array(
 			'title'            => $class_title,
 			'type'             => $type,
-			'tags'             => $tags,
+			'category'         => $category,
 			'kb_link'          => $kb_link,
 			'description'      => $class_description,
 			'dependants_exist' => self::dependants_exist(),
@@ -92,6 +105,13 @@ class LoginRedirect extends Config implements RequiredFunctions {
 				'type'        => 'text',
 				'label'       => esc_html__( 'Logout Redirect', 'uncanny-learndash-toolkit' ),
 				'option_name' => 'logout_redirect',
+			),
+			
+			array(
+				'type'        => 'text',
+				'label'       => esc_html__( 'Redirect Priority', 'uncanny-learndash-toolkit' ),
+				'option_name' => 'redirect_priority',
+				'placeholder' => '999'
 			),
 		);
 

@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Uncanny LearnDash Toolkit
-Version: 2.5
+Version: 3.0.1
 Description: Extend the LearnDash plugin with a variety of complementary features to make building engaging learner experiences even easier.
 Author: Uncanny Owl
 Author URI: www.uncannyowl.com
@@ -15,8 +15,68 @@ global $uncanny_learndash_toolkit;
 
 // Define version test
 if ( ! defined( 'UNCANNY_TOOLKIT_VERSION' ) ) {
-	define( 'UNCANNY_TOOLKIT_VERSION', '2.5' );
+	define( 'UNCANNY_TOOLKIT_VERSION', '3.0.1' );
 }
+
+// Define version test
+if ( ! defined( 'UNCANNY_TOOLKIT_PREFIX' ) ) {
+	define( 'UNCANNY_TOOLKIT_PREFIX', 'ultp' );
+}
+
+function ultp_notice() {
+	$user_id = get_current_user_id();
+
+	if ( empty( get_user_meta( $user_id, 'uofel_notice_dismissed' ) ) ) {
+		echo '<div class="notice notice-warning below-h2">
+<button id="uofel" type="button" style="    position: relative;
+    top: 0;
+    right: 1px;
+    border: none;
+    margin: 0;
+    padding: 9px;
+    background: 0 0;
+    color: #0073aa;
+    cursor: pointer;
+    float: right;" >Dismiss<span class="screen-reader-text">Dismiss this notice.</span></button>
+				<p><strong>IMPORTANT!</strong> The Front End Login module of the Uncanny LearnDash Toolkit changed significantly in version 3.0. Please re-check your settings and review your login page as a logged out user. </p>
+			
+			</div>
+			<script>
+jQuery("#uofel").on("click", function(){    
+    key = encodeURI("uofel-dismissed"); value = encodeURI("yes");
+    var kvp = document.location.search.substr(1).split("&");
+    var i=kvp.length; var x; while(i--) 
+    {
+        x = kvp[i].split("=");
+
+        if (x[0]==key)
+        {
+            x[1] = value;
+            kvp[i] = x.join("=");
+            break;
+        }
+    }
+
+    if(i<0) {kvp[kvp.length] = [key,value].join("=");}
+
+    //this will reload the page, it\'s likely better to store this until finished
+    document.location.search = kvp.join("&"); 
+    });
+</script>';
+	}
+}
+
+add_action( 'admin_notices', 'ultp_notice' );
+
+function ultp_notice_dismissed() {
+	$user_id = get_current_user_id();
+	if ( isset( $_GET['uofel-dismissed'] ) ) {
+		add_user_meta( $user_id, 'uofel_notice_dismissed', 'true', true );
+	}
+}
+
+add_action( 'admin_init', 'ultp_notice_dismissed' );
+
 
 // Show admin notices for minimum versions of PHP, WordPress, and LearnDash
 add_action( 'admin_notices', 'learndash_version_notice' );
@@ -39,9 +99,9 @@ function learndash_version_notice() {
 	// Get current screen
 	$screen = get_current_screen();
 
-	if ( ! version_compare( PHP_VERSION, '5.3', '>=' ) && ( isset( $screen ) && 'plugins.php' === $screen->parent_file ) ) {
+	if ( ! version_compare( PHP_VERSION, '5.6', '>=' ) ) {
 
-		// Show notice if php version is less than 5.3 and the current admin page is plugins.php
+		// Show notice if php version is less than 5.6
 		$version = $php;
 		$current = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION . '.' . PHP_RELEASE_VERSION;
 
@@ -59,7 +119,7 @@ function learndash_version_notice() {
 		</div>
 		<?php
 
-	} elseif ( version_compare( $wp_version, $wp, '<' ) && ( isset( $_REQUEST['page'] ) && 'uncanny-learnDash-toolkit' === $_REQUEST['page'] ) ) {
+	} elseif ( version_compare( $wp_version, $wp, '<' ) && ( isset( $_REQUEST['page'] ) && 'uncanny-toolkit' === $_REQUEST['page'] ) ) {
 
 		// Show notice if WP version is less than 4.0 and the current page is the Toolkit settings page
 		$flag    = 'WordPress';
@@ -96,7 +156,7 @@ function learndash_version_notice() {
 		</div>
 		<?php
 
-	} elseif ( ! version_compare( $learn_dash_version, $learn_dash, '>=' ) && ( isset( $_REQUEST['page'] ) && 'uncanny-learnDash-toolkit' === $_REQUEST['page'] ) ) {
+	} elseif ( ! version_compare( $learn_dash_version, $learn_dash, '>=' ) && ( isset( $_REQUEST['page'] ) && 'uncanny-toolkit' === $_REQUEST['page'] ) ) {
 
 		// Show notice if LearnDash is less than 2.1 and the current page is the Toolkit settings page
 		if ( 0 !== $learn_dash_version ) {
@@ -140,7 +200,7 @@ function uncanny_learndash_toolkit_text_domain() {
 }
 
 // PHP version 5.3 and up only
-if ( version_compare( PHP_VERSION, '5.3', '>=' ) ) {
+if ( version_compare( PHP_VERSION, '5.6', '>=' ) ) {
 
 	// On first activation, redirect to toolkit settings page if min php version is met
 	register_activation_hook( __FILE__, 'uncanny_learndash_toolkit_plugin_activate' );
@@ -157,7 +217,7 @@ if ( version_compare( PHP_VERSION, '5.3', '>=' ) ) {
 			update_option( 'uncanny_learndash_toolkit_plugin_do_activation_redirect', 'no' );
 
 			if ( ! isset( $_GET['activate-multi'] ) ) {
-				wp_redirect( admin_url( 'admin.php?page=uncanny-learnDash-toolkit' ) );
+				wp_redirect( admin_url( 'admin.php?page=uncanny-toolkit' ) );
 			}
 		}
 	}
@@ -168,7 +228,7 @@ if ( version_compare( PHP_VERSION, '5.3', '>=' ) ) {
 	add_filter( 'plugin_action_links_' . $uncanny_learndash_toolkit_plugin_basename, 'uncanny_learndash_toolkit_plugin_settings_link' );
 
 	function uncanny_learndash_toolkit_plugin_settings_link( $links ) {
-		$settings_link = '<a href="' . admin_url( 'admin.php?page=uncanny-learnDash-toolkit' ) . '">Settings</a>';
+		$settings_link = '<a href="' . admin_url( 'admin.php?page=uncanny-toolkit' ) . '">Settings</a>';
 		array_unshift( $links, $settings_link );
 
 		return $links;

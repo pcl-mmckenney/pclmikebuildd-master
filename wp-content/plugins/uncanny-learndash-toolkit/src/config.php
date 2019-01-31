@@ -122,7 +122,7 @@ class Config {
 	 * @return string
 	 */
 	public static function get_admin_media( $file_name ) {
-		$asset_url = plugins_url( 'assets/admin/media/' . $file_name, __FILE__ );
+		$asset_url = plugins_url( 'assets/backend/img/' . $file_name, __FILE__ );
 
 		return $asset_url;
 	}
@@ -133,7 +133,7 @@ class Config {
 	 * @return string
 	 */
 	public static function get_admin_css( $file_name ) {
-		$asset_url = plugins_url( 'assets/admin/css/' . $file_name, __FILE__ );
+		$asset_url = plugins_url( 'assets/backend/css/' . $file_name, __FILE__ );
 
 		return $asset_url;
 	}
@@ -144,7 +144,7 @@ class Config {
 	 * @return string
 	 */
 	public static function get_admin_js( $file_name ) {
-		$asset_url = plugins_url( 'assets/admin/js/' . $file_name, __FILE__ );
+		$asset_url = plugins_url( 'assets/backend/js/' . $file_name, __FILE__ );
 
 		return $asset_url;
 	}
@@ -178,6 +178,17 @@ class Config {
 	 */
 	public static function get_site_js( $file_name ) {
 		$asset_url = plugins_url( 'assets/site/js/' . $file_name, __FILE__ );
+
+		return $asset_url;
+	}
+
+	/**
+	 * @param string $file_name
+	 *
+	 * @return string
+	 */
+	public static function get_vendor( $file_name ) {
+		$asset_url = plugins_url( 'assets/vendor/' . $file_name, __FILE__ );
 
 		return $asset_url;
 	}
@@ -314,104 +325,234 @@ class Config {
 		$title   = $settings['title'];
 		$options = $settings['options'];
 
-		//create unique clean html id from class name
 		$modal_id = stripslashes( $class );
 		$modal_id = str_replace( __NAMESPACE__, '', $modal_id );
 
-		$modal_link = '<a class="uo_settings_link" rel="leanModal" href="#' . $modal_id . '"><span class="dashicons dashicons-admin-generic"></span></a>';
-
 		ob_start();
 
-		//Wrapper Start - open div.uo_setting, open div.uo_settings_options
 		?>
 
-		<div id="<?php echo $modal_id; ?>" class="uo_settings">
+		<div class="ult-modal" data-settings="<?php echo $modal_id; ?>">
+			<div class="ult-modal-box">
+				<div class="ult-modal__header">
+					<div class="ult-modal-title">
+						<div class="ult-modal-title__icon"></div>
+						<div class="ult-modal-title__text">
+							<?php echo $title; ?>
+						</div>
+					</div>
+				</div>
+				<form method="POST" class="ult-modal-form ult-modal-form-js">
+					<div class="ult-modal-options">
+						<?php
 
-			<div class="uo_settings_header">
-				<!--<h2>Settings: <?php /*echo $title; */ ?></h2>-->
-				<h2><?php echo $title; ?></h2>
-			</div>
+						// Create options
+						foreach ( $options as $content ) {
 
-			<div class="sk-folding-cube">
-				<div class="sk-cube1 sk-cube"></div>
-				<div class="sk-cube2 sk-cube"></div>
-				<div class="sk-cube4 sk-cube"></div>
-				<div class="sk-cube3 sk-cube"></div>
-			</div>
+							switch ( $content['type'] ) {
 
-			<div class="uo_settings_options">
+								case 'html':
 
-				<?php
+									?>
 
-				// Create options
-				foreach ( $options as $content ) {
-					switch ( $content['type'] ) {
+									<div class="ult-modal-form-row ult-modal-form-row--html <?php echo $content['class']; ?>">
+										<?php echo $content['inner_html']; ?>
+									</div>
 
-						case 'html':
-							echo '<div class="uo_settings_single ' . $content['class'] . '">' . $content['inner_html'] . '</div>';
-							break;
+									<?php
 
-						case 'text':
-							echo '<div class="uo_settings_single"><div class="uo_settings_label">' . $content['label'] . '</div><div class="uo_settings_input"><input placeholder="' . $content['placeholder'] . '" class="uo_settings_form_field ' . $content['class'] . '" name="' . $content['option_name'] . '" type="text" /></div></div>';
-							break;
+									break;
 
-						case 'color':
-							echo '<div class="uo_settings_single"><div class="uo_settings_label">' . $content['label'] . '</div><div class="uo_settings_input"><input class="uo_settings_form_field" name="' . $content['option_name'] . '" type="color" /></div></div>';
-							break;
+								case 'text':
 
-						case 'textarea':
-							//Fallback method for old toolkit
-							if ( version_compare( UNCANNY_TOOLKIT_VERSION, '2.4' ) >= 0 ) {
-								$settings        = array(
-									'media_buttons' => false,
-									'editor_height' => 275,
-								);
-								$initial_content = self::get_settings_value( $content['option_name'], $class );
-								if ( empty( $initial_content ) ) {
-									$initial_content = $content['placeholder'];
-								}
-								$initial_content = stripslashes( $initial_content );
-								echo '<div class="uo_settings_single"><div class="uo_settings_label">' . $content['label'] . '</div><div class="uo_settings_input">';
-								wp_editor( $initial_content, $content['option_name'], $settings );
-								echo '</div></div>';
-							} else {
-								echo '<div class="uo_settings_single"><div class="uo_settings_label">' . $content['label'] . '</div><div class="uo_settings_input"><textarea rows="7" cols="65" class="uo_settings_form_field ' . $content['class'] . '" name="' . $content['option_name'] . '" id="' . $content['option_name'] . '" placeholder="' . $content['placeholder'] . '" ></textarea></div></div>';
+									?>
+
+									<div class="ult-modal-form-row ult-modal__field--text">
+										<div class="ult-modal-form-row__label">
+											<?php echo $content['label']; ?>
+										</div>
+										<div class="ult-modal-form-row__field">
+											<input type="text" placeholder="<?php echo $content['placeholder']; ?>" class="ult-modal-form-row__input <?php echo $content['class'] ?>" name="<?php echo $content['option_name']; ?>" data-type="text">
+										</div>
+									</div>
+
+									<?php
+
+									break;
+
+								case 'color':
+
+									?>
+
+									<div class="ult-modal-form-row ult-modal__field--color">
+										<div class="ult-modal-form-row__label">
+											<?php echo $content['label']; ?>
+										</div>
+										<div class="ult-modal-form-row__field">
+											<input type="color" placeholder="<?php echo $content['placeholder']; ?>" class="ult-modal-form-row__color" name="<?php echo $content['option_name']; ?>" data-type="color">
+										</div>
+									</div>
+
+									<?php
+
+									break;
+
+								case 'textarea':
+									//Fallback method for old toolkit
+									if ( version_compare( UNCANNY_TOOLKIT_VERSION, '2.4' ) >= 0 ) {
+										// TinyMCE.
+
+										$tinymce_content = self::get_settings_value( $tinymce_content['option_name'], $class );
+
+										if ( empty( $content ) ) {
+											$tinymce_content = $tinymce_content['placeholder'];
+										}
+
+										$tinymce_content = stripslashes( $tinymce_content );
+
+										?>
+
+										<div class="ult-modal-form-row ult-modal__field--tinymce">
+											<div class="ult-modal-form-row__label">
+												<?php echo $content['label']; ?>
+											</div>
+											<div class="ult-modal-form-row__field">
+												<?php
+
+												echo wp_editor(
+													$tinymce_content,
+													$content['option_name'],
+													[
+														'editor_class'  => 'ult-tinymce',
+														'media_buttons' => false,
+														'editor_height' => 275,
+													] );
+
+												?>
+											</div>
+										</div>
+
+										<?php
+									} else {
+										?>
+
+										<div class="ult-modal-form-row ult-modal__field--textarea">
+											<div class="ult-modal-form-row__label">
+												<?php echo $content['label']; ?>
+											</div>
+											<div class="ult-modal-form-row__field">
+												<textarea class="ult-modal-form-row__textarea <?php echo $content['class']; ?>" name="<?php echo $content['option_name']; ?>" placeholder="<?php echo $content['placeholder']; ?>" type="textarea"></textarea>
+											</div>
+										</div>
+
+										<?php
+									}
+
+									break;
+
+								case 'checkbox':
+
+									?>
+
+									<div class="ult-modal-form-row ult-modal__field--checkbox">
+										<div class="ult-modal-form-row__field">
+											<label>
+												<input type="checkbox" name="<?php echo $content['option_name']; ?>" class="ult-modal-form-row__checkbox" data-type="checkbox">
+												<?php echo $content['label']; ?>
+											</label>
+										</div>
+									</div>
+
+									<?php
+
+									break;
+
+								case 'radio';
+
+									?>
+
+									<div class="ult-modal-form-row ult-modal__field--radio">
+										<div class="ult-modal-form-row__label">
+											<?php echo $content['label']; ?>
+										</div>
+										<div class="ult-modal-form-row__field">
+											<?php
+
+											/**
+											 * This type of field has an exception. We're expecting more than one input radio
+											 */
+
+											foreach ( $content['radios'] as $radio ) {
+												?>
+
+												<input type="radio" name="<?php echo $content['radio_name']; ?>" value="<?php echo $radio['value']; ?>" data-type="radio"> <?php echo $radio['text']; ?>
+
+												<?php
+											}
+
+											?>
+										</div>
+									</div>
+
+									<?php
+
+									break;
+
+								case 'select':
+
+									?>
+
+									<div class="ult-modal-form-row ult-modal__field--select">
+										<div class="ult-modal-form-row__label">
+											<?php echo $content['label']; ?>
+										</div>
+										<div class="ult-modal-form-row__field">
+											<select class="ult-modal-form-row__select" name="<?php echo $content['select_name']; ?>" data-type="select">
+												<?php
+
+												foreach ( $content['options'] as $option ) {
+													?>
+
+													<option value="<?php echo $option['value']; ?>">
+														<?php echo $option['text']; ?>
+													</option>
+
+													<?php
+												}
+
+												?>
+											</select>
+
+										</div>
+									</div>
+
+									<?php
+
+									break;
 							}
-							break;
+						}
 
-						case 'checkbox':
-							echo '<div class="uo_settings_single"><div class="uo_settings_label">' . $content['label'] . '</div><div class="uo_settings_input"><input class="uo_settings_form_field" name="' . $content['option_name'] . '" type="checkbox" /></div></div>';
-							break;
-
-						case 'radio';
-
-							$inputs = '';
-							foreach ( $content['radios'] as $radio ) {
-								$inputs .= '<input class="uo_settings_form_field" type="radio" name="' . $content['radio_name'] . '" value="' . $radio['value'] . '">' . $radio['text'] . ' ';
-							}
-							echo '<div class="uo_settings_single"><div class="uo_settings_label">' . $content['label'] . '</div><div class="uo_settings_input">' . $inputs . '</div></div>';
-							break;
-
-						case 'select':
-							$options = '';
-							foreach ( $content['options'] as $option ) {
-								$options .= '<option value="' . $option['value'] . '"> ' . $option['text'] . '</option>';
-							}
-							echo '<div class="uo_settings_single"><div class="uo_settings_label">' . $content['label'] . '</div>
-								<div class="uo_settings_input"><select class="uo_settings_form_field" name="' . $content['select_name'] . '" >' . $options . '</select></div>
-							</div>';
-							break;
-
-					}
-				}
-
-				//Wrapper End - create button, close div.uo_setting, close div.uo_settings_options
-				?>
-				<button class="uo_save_settings">Save Settings</button>
-
+						?>
+					</div>
+					<div class="ult-modal-footer">
+						<div class="ult-modal-notice"></div>
+						<div class="ult-modal-actions">
+							<div class="ult-modal-action">
+								<div class="ult-modal-action__btn ult-modal-action__btn--secondary ult-modal-action__btn-cancel-js" data-action="cancel">
+									<?php _e( 'Close', 'uncanny-learndash-toolkit' ); ?>
+								</div>
+							</div>
+							<div class="ult-modal-action">
+								<button class="ult-modal-action__btn ult-modal-action__btn--primary ult-modal-action__btn-submit-js" type="submit">
+									<?php _e( 'Save module', 'uncanny-learndash-toolkit' ); ?>
+								</button>
+							</div>
+						</div>
+					</div>
+				</form>
 			</div>
-
 		</div>
+
 
 		<?php
 
@@ -445,9 +586,9 @@ class Config {
 					if ( ! is_array( $active_classes ) ) {
 						$active_classes = array();
 					}
-					if ( 1 === intval( $_POST['active'] ) ) {
+					if ( 'active' === $_POST['active'] ) {
 						$new_classes = array_merge( array( $value => $value ), $active_classes );
-					} elseif ( 0 === intval( $_POST['active'] ) ) {
+					} elseif ( 'inactive' === $_POST['active'] ) {
 						unset( $active_classes[ $value ] );
 						$new_classes = $active_classes;
 					}
@@ -458,6 +599,7 @@ class Config {
 					$response      = ( $save_settings ) ? 'success' : 'notsaved';
 				}
 
+				//echo json_encode([$new_classes, $value, $_POST ]);
 				echo $response;
 				wp_die();
 			}
@@ -481,6 +623,11 @@ class Config {
 			}
 		}
 
+		$response = [
+			'error'   => true,
+			'message' => ''
+		];
+
 		$capability = apply_filters( 'toolkit_settings_save_cap', 'manage_options' );
 
 		if ( current_user_can( $capability ) ) {
@@ -495,21 +642,25 @@ class Config {
 				// positive is returned
 
 				delete_option( $class );
-				//self::trace_logs( $options, 'options', 'save' );
+
 				$save_settings = add_option( $class, $options, 'no' );
 
-				$response = ( $save_settings ) ? 'success' : 'notsaved';
+				$response['error'] = ! $save_settings;
+
+				if ( $save_settings ) {
+					$response['message'] = __( 'Settings saved successfully', 'uncanny-learndash-toolkit' );
+				} else {
+					$response['message'] = __( 'Something went wrong. Please, try again', 'uncanny-learndash-toolkit' );
+				}
 
 			} else {
-				$response = 'Class for addon is not set.';
+				$response['message'] = __( 'Class for addon is not set', 'uncanny-learndash-toolkit' );
 			}
 		} else {
-
-			$response = 'You must be an admin to save settings.';
-
+			$response['message'] = __( 'You must be an admin to save settings', 'uncanny-learndash-toolkit' );
 		}
 
-		echo stripslashes( $response );
+		echo json_encode( $response );
 
 		wp_die();
 
@@ -541,6 +692,10 @@ class Config {
 
 				$settings = get_option( $class, array() );
 
+				foreach($settings as &$setting ){
+					$setting['value'] = stripslashes($setting['value']);
+				}
+
 				$response = wp_json_encode( $settings );
 
 			} else {
@@ -552,7 +707,6 @@ class Config {
 
 		}
 
-		//echo stripslashes( $response );
 		echo $response;
 
 		wp_die();
@@ -562,24 +716,52 @@ class Config {
 	/**
 	 * @param $key
 	 * @param $class
+	 * @param $default
 	 *
 	 * @return string
 	 */
-	public static function get_settings_value( $key, $class ) {
+	public static function get_settings_value( $key, $class, $default = '', $class_settings = [] ) {
 
-		$class   = str_replace( __NAMESPACE__, '', stripslashes( $class ) );
+		// get module settings key
+		$class = str_replace( __NAMESPACE__, '', stripslashes( $class ) );
+
+		// Get all module settings
 		$options = get_option( $class, '' );
 
-		if ( ! empty( $options ) && '' !== $options ) {
-			foreach ( $options as $option ) {
-				if ( in_array( $key, $option, true ) ) {
-					return $option['value'];
+		// set default settings if placeholder is to be used as default
+		if( '%placeholder%' === $default ){
+			// fallback
+			//$default = '';
+			foreach( $class_settings as $setting ){
+				if( isset($setting['option_name']) && $key === $setting['option_name']){
+					if( isset( $setting['placeholder'] )){
+						$default = $setting['placeholder'];
+					}
 				}
 			}
 		}
 
-		return '';
+		// Check if setting key has an associated class
+		if ( ! empty( $options ) && '' !== $options ) {
+			foreach ( $options as $option ) {
+				if ( in_array( $key, $option, true ) ) {
+					if ( '' !== $default && '' === trim( $option['value'] ) ) {
+						return $default;
+					}
+
+					return stripslashes( $option['value'] );
+				}
+			}
+		}
+
+		return $default;
 	}
+/*
+	public static function removeslashes( $string ) {
+		$string = implode( "", explode( "\\", $string ) );
+
+		return stripslashes( trim( $string ) );
+	}*/
 
 
 	/**

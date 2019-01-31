@@ -61,13 +61,13 @@ class MenuItemVisibility extends Config implements RequiredFunctions {
 		$kb_link           = 'http://www.uncannyowl.com/knowledge-base/menu-item-visibility/';
 		$class_description = esc_html__( 'Toggles the visibility of menu items based on whether or not users are signed in to the site.', 'uncanny-learndash-toolkit' );
 		$class_icon        = '<i class="uo_icon_fa fa fa-eye-slash"></i>';
-		$tags              = 'general';
+		$category          = 'wordpress';
 		$type              = 'free';
 
 		return array(
 			'title'            => $class_title,
 			'type'             => $type,
-			'tags'             => $tags,
+			'category'         => $category,
 			'kb_link'          => $kb_link,
 			'description'      => $class_description,
 			'dependants_exist' => self::dependants_exist(),
@@ -86,7 +86,7 @@ class MenuItemVisibility extends Config implements RequiredFunctions {
 	public static function dependants_exist() {
 
 		if ( function_exists( 'Nav_Menu_Roles' ) ) {
-			return 'This module cannot be active while Nav Menu Roles is in use. Please use Nav Menu Roles instead.@uo_custom_message';
+			return 'This module cannot be active while Nav Menu Roles is in use. Please use Nav Menu Roles instead.';
 		}
 
 		// Return true if no dependency or dependency is available

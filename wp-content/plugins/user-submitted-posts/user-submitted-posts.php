@@ -9,9 +9,9 @@
 	Donate link: https://monzillamedia.com/donate.html
 	Contributors: specialk
 	Requires at least: 4.1
-	Tested up to: 4.9
-	Stable tag: 20180822
-	Version: 20180822
+	Tested up to: 5.0
+	Stable tag: 20181117
+	Version: 20181117
 	Requires PHP: 5.2
 	Text Domain: usp
 	Domain Path: /languages
@@ -40,7 +40,7 @@ if (!defined('ABSPATH')) die();
 
 
 define('USP_WP_VERSION', '4.1');
-define('USP_VERSION', '20180822');
+define('USP_VERSION', '20181117');
 define('USP_PLUGIN', esc_html__('User Submitted Posts', 'usp'));
 define('USP_PATH', plugin_basename(__FILE__));
 
@@ -885,13 +885,13 @@ function usp_attach_images($post_id, $newPost, $files, $file_count) {
 				
 				$append = ($file_count > 1) ? '-'. $i : '';
 				
-				$append = apply_filters('usp_filename_append', $append);
-				
 				$file_name = basename($files['name'][$i]);
 				
 				$parts = pathinfo($file_name);
 				
 				$ext = isset($parts['extension']) ? $parts['extension'] : null;
+				
+				$append = apply_filters('usp_filename_append', $append, $file_name, $ext);
 				
 				$file_name = isset($parts['filename']) ? $parts['filename'] . $append .'.'. $ext : $file_name;
 				
@@ -1059,8 +1059,6 @@ function usp_createPublicSubmission($title, $files, $ip, $author, $url, $email, 
 		
 		wp_set_post_categories($post_id, array($category));
 		
-		usp_send_mail_alert($post_id, $title, $content, $author, $email);
-		
 		$newPost = usp_attach_images($post_id, $newPost, $files, $file_count);
 		
 		if (isset($newPost['error'][0]) && empty($newPost['error'][0])) {
@@ -1078,6 +1076,8 @@ function usp_createPublicSubmission($title, $files, $ip, $author, $url, $email, 
 			if (!empty($url))      update_post_meta($post_id, 'user_submit_url',   $url);
 			
 			if (!empty($ip) && !$usp_options['disable_ip_tracking']) update_post_meta($post_id, 'user_submit_ip', $ip); 
+			
+			usp_send_mail_alert($post_id, $title, $content, $author, $email, $custom);
 			
 		}
 		
@@ -1175,9 +1175,7 @@ function usp_validateEmail($email) {
 	
 }
 
-
-
-function usp_send_mail_alert($post_id, $title, $content, $author, $email) {
+function usp_send_mail_alert($post_id, $title, $content, $author, $email, $custom) {
 	
 	global $usp_options;
 	
@@ -1203,6 +1201,7 @@ function usp_send_mail_alert($post_id, $title, $content, $author, $email) {
 		$patterns[6]  = "/%%post_author%%/";
 		$patterns[7]  = "/%%user_email%%/";
 		$patterns[8]  = "/%%edit_link%%/";
+		$patterns[9]  = "/%%custom_field%%/";
 		
 		$replacements = array();
 		$replacements[0]  = $blog_url;
@@ -1214,6 +1213,7 @@ function usp_send_mail_alert($post_id, $title, $content, $author, $email) {
 		$replacements[6]  = $post_author;
 		$replacements[7]  = $user_email;
 		$replacements[8]  = $edit_link;
+		$replacements[9]  = $custom;
 		
 		//
 		

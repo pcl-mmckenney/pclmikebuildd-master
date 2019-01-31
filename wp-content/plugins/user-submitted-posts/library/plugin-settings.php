@@ -51,6 +51,12 @@ function add_usp_links($links, $file) {
 	
 	if ($file == USP_PATH) {
 		
+		$home_href  = 'https://perishablepress.com/user-submitted-posts/';
+		$home_title = esc_attr__('Plugin Homepage', 'usp');
+		$home_text  = esc_html__('Homepage', 'usp');
+		
+		$links[] = '<a target="_blank" rel="noopener noreferrer" href="'. $home_href .'" title="'. $home_title .'">'. $home_text .'</a>';
+		
 		$rate_href  = 'https://wordpress.org/support/plugin/user-submitted-posts/reviews/?rate=5#new-post';
 		$rate_title = esc_attr__('Give USP a 5-star rating at WordPress.org', 'usp');
 		$rate_text  = esc_html__('Rate this plugin&nbsp;&raquo;', 'usp');
@@ -542,16 +548,20 @@ function usp_post_author_options() {
 	$limit = ($user_total > $user_max) ? $user_max : $user_total;
 	
 	if (is_multisite()) {
-			
-		$query = "SELECT {$wpdb->users}.ID, {$wpdb->users}.display_name FROM {$wpdb->users}, {$wpdb->usermeta} WHERE {$wpdb->users}.ID = {$wpdb->usermeta}.user_id AND {$wpdb->usermeta}.meta_key=\"wp_{$wpdb->blogid}_user_level\" LIMIT %d";
+		
+		$args = array('blog_id' => get_current_blog_id(), 'number'  => $limit);
+		
+		$user_query = new WP_User_Query($args);
+		
+		$users = $user_query->get_results();
 		
 	} else {
 		
 		$query = "SELECT ID, display_name FROM {$wpdb->users} LIMIT %d";
 		
+		$users = $wpdb->get_results($wpdb->prepare($query, $limit));
+		
 	}
-	
-	$users = $wpdb->get_results($wpdb->prepare($query, $limit));
 	
 	$output = '<select id="usp_options[author]" name="usp_options[author]">';
 	
@@ -1319,14 +1329,14 @@ function usp_render_form() {
 										<td><input type="text" size="45" name="usp_options[email_alert_subject]" value="<?php if (isset($usp_options['email_alert_subject'])) echo esc_attr($usp_options['email_alert_subject']); ?>" />
 										<div class="mm-item-caption"><?php esc_html_e('Subject line for email alerts. Leave blank to use the default subject line. Note: you can use the following variables: ', 'usp'); ?>
 										<code>%%post_title%%</code>, <code>%%post_content%%</code>, <code>%%post_author%%</code>, <code>%%blog_name%%</code>, <code>%%blog_url%%</code>, <code>%%post_url%%</code>, <code>%%admin_url%%</code>, 
-										<code>%%edit_link%%</code>, <code>%%user_email%%</code></div></td>
+										<code>%%edit_link%%</code>, <code>%%user_email%%</code>, <code>%%custom_field%%</code></div></td>
 									</tr>
 									<tr>
 										<th scope="row"><label class="description" for="usp_options[email_alert_message]"><?php esc_html_e('Email Alert Message', 'usp'); ?></label></th>
 										<td><textarea class="textarea" rows="3" cols="50" name="usp_options[email_alert_message]"><?php if (isset($usp_options['email_alert_message'])) echo esc_textarea($usp_options['email_alert_message']); ?></textarea> 
 										<div class="mm-item-caption"><?php esc_html_e('Message for email alerts. Leave blank to use the default message. Note: you can use the following variables: ', 'usp'); ?>
 										<code>%%post_title%%</code>, <code>%%post_content%%</code>, <code>%%post_author%%</code>, <code>%%blog_name%%</code>, <code>%%blog_url%%</code>, <code>%%post_url%%</code>, <code>%%admin_url%%</code>, 
-										<code>%%edit_link%%</code>, <code>%%user_email%%</code></div></td>
+										<code>%%edit_link%%</code>, <code>%%user_email%%</code>, <code>%%custom_field%%</code></div></td>
 									</tr>
 								</table>
 							</div>

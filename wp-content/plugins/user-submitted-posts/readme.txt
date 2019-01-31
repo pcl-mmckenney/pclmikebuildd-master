@@ -9,9 +9,9 @@ Author URI: https://plugin-planet.com/
 Donate link: https://monzillamedia.com/donate.html
 Contributors: specialk
 Requires at least: 4.1
-Tested up to: 4.9
-Stable tag: 20180822
-Version: 20180822
+Tested up to: 5.0
+Stable tag: 20181117
+Version: 20181117
 Requires PHP: 5.2
 Text Domain: usp
 Domain Path: /languages
@@ -169,7 +169,7 @@ Need a translation into your language? [Let me know!](https://perishablepress.co
 
 User Submitted Posts (USP) enables users to submit post content. It collects data _only_ from users who submit content via the USP form. There is an option to disable collection of the submitter's IP address. So this plugin does _not_ do anything to make your site _less_ compliant with GDPR. I have done my best to ensure that this plugin is 100% GDPR compliant, but I'm not a lawyer so can't guarantee anything. To determine if your site is GDPR compliant, please consult an attorney.
 
-> Works perfectly with or without Gutenberg
+> Works perfectly with or without Gutenberg Block Editor
 
 
 **Pro Version**
@@ -527,6 +527,11 @@ Pro version of USP now available! USP Pro includes many more awesome features an
 * [Read what users are saying about USP Pro &raquo;](https://plugin-planet.com/testimonials/)
 
 
+**Like the plugin?**
+
+If you like USP, please take a moment to [give a 5-star rating](https://wordpress.org/support/plugin/user-submitted-posts/reviews/?rate=5#new-post). It helps to keep development and support going strong. Thank you!
+
+
 
 == Upgrade Notice ==
 
@@ -694,6 +699,15 @@ Links, tweets and likes also appreciated. Thanks! :)
 == Changelog ==
 
 *Thank you to everyone who shares feedback for User Submitted Posts!*
+
+**20181117**
+
+* Adds `%%custom_field%%` shortcode for email alerts
+* Adds homepage link to Plugins screen
+* Updates `usp_post_author_options()`
+* Updates Russian translation (Thank you Artem)
+* Updates default translation template
+* Tests on WordPress 5.0 (beta)
 
 **20180822**
 

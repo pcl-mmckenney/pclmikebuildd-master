@@ -22,7 +22,7 @@ class HideAdminBar extends Config implements RequiredFunctions {
 
 		if ( true === self::dependants_exist() ) {
 			/* Hide admin bar on frontend for the user role */
-			add_filter( 'show_admin_bar', array( __CLASS__, 'show_admin_bar' ) );
+			add_filter( 'show_admin_bar', array( __CLASS__, 'show_admin_bar' ), 11 );
 		}
 
 	}
@@ -38,13 +38,13 @@ class HideAdminBar extends Config implements RequiredFunctions {
 		$kb_link           = 'https://www.uncannyowl.com/knowledge-base/hide-admin-bar/';
 		$class_description = esc_html__( 'Hides the Admin Bar at the top of WordPress pages based on the user role.', 'uncanny-learndash-toolkit' );
 		$class_icon        = '<i class="uo_icon_fa fa fa-minus-square-o"></i>';
-		$tags              = 'general';
+		$category          = 'wordpress';
 		$type              = 'free';
 
 		return array(
 			'title'            => $class_title,
 			'type'             => $type,
-			'tags'             => $tags,
+			'category'         => $category,
 			'kb_link'          => $kb_link, // OR set as null not to display
 			'description'      => $class_description,
 			'dependants_exist' => self::dependants_exist(),
@@ -110,19 +110,32 @@ class HideAdminBar extends Config implements RequiredFunctions {
 	public static function show_admin_bar() {
 
 		if ( is_user_logged_in() ) {
+			if ( is_multisite() ) {
+				$user       = new \WP_User(
+					get_current_user_id(),
+					'',
+					get_current_blog_id()
+				);
+				$user_roles = $user->roles;
+				if ( empty( $user_roles ) ) {
+					$user       = new \WP_User(
+						get_current_user_id(),
+						'',
+						1
+					);
+					$user_roles = $user->roles;
+				}
+				$hide_roles = get_blog_option( get_current_blog_id(), 'HideAdminBar', '' );
+			} else {
+				$user_roles = wp_get_current_user()->roles;
+				$hide_roles = get_option( 'HideAdminBar', '' );
+			}
+			if ( $hide_roles ) {
+				foreach ( $hide_roles as $role ) {
 
-			global $current_user;
-
-			$user_roles = $current_user->roles;
-			$user_role  = array_shift( $user_roles );
-
-			$hide_roles = get_option( 'HideAdminBar', Array() );
-
-			foreach ( $hide_roles as $role ) {
-
-				if ( $user_role === $role['name'] && 'on' === $role['value'] ) {
-
-					return false;
+					if ( 'on' === $role['value'] && in_array( $role['name'], $user_roles ) ) {
+						return false;
+					}
 				}
 			}
 
